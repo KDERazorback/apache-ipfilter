@@ -3,7 +3,7 @@
  * Plugin Name: RazorSoftware IpFilter Manager
  * Plugin URI: https://razorsoftware.dev/
  * Description: Admin interface that allows configuration, data visualization and management of the IPFilter IP address filtering tool by RazorSoftware
- * Version: 0.0.1
+ * Version: 0.0.2
  * Requires at least: 4.6
  * Requires PHP: 7.0
  * Author: RazorSoftware
