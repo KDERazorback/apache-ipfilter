@@ -55,6 +55,11 @@ class RZ_IpFilter {
 
         # Include, jQuery, jQueryUI and jTable
         wp_enqueue_script(
+            'jquery-ui',
+            RZ_IPFILTER_URL . '/external/jquery-ui/jquery-ui.min.js', 
+            array( 'jquery' ) 
+        );
+        wp_enqueue_script(
             'jquery-jtable',
             RZ_IPFILTER_URL . '/external/jtable/jquery.jtable.min.js', 
             array( 'jquery', 'jquery-ui-tabs' ) 
@@ -103,6 +108,11 @@ class RZ_IpFilter {
         $optionsArr = $options->getArray();
 
         # Include, jQuery, jQueryUI and jTable
+        wp_enqueue_script(
+            'jquery-ui',
+            RZ_IPFILTER_URL . '/external/jquery-ui/jquery-ui.min.js', 
+            array( 'jquery' ) 
+        );
         wp_enqueue_script(
             'jquery-jtable',
             RZ_IPFILTER_URL . '/external/jtable/jquery.jtable.min.js', 
