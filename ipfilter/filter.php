@@ -15,6 +15,7 @@
         if (!headers_sent())
             header("X-RZ-Floodgate: 0", TRUE);
         
-        require RZIPF_PHP_NEXTFILE;
+        if(defined('RZIPF_PHP_NEXTFILE'))
+            require RZIPF_PHP_NEXTFILE;
     }
 ?>
