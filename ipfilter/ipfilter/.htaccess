@@ -1,0 +1,5 @@
+Options -Indexes
+
+<FilesMatch "!^setup.php$">
+    Require all denied
+</FilesMatch>

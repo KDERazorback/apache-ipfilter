@@ -1,0 +1,108 @@
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+    padding: 0;
+    margin: 0;
+}
+
+.frontend {
+    text-align: center;
+    display: flex;
+    flex-flow: column;
+    overflow: hidden;
+    height: 100vh;
+    box-sizing: border-box;
+}
+
+header {
+    background-color: #4a4e69;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: calc(4px + 2vmin);
+    color: white;
+    flex: 0 0 auto;
+}
+
+main {
+    overflow: hidden scroll;
+    width: 100%;
+    flex: 1 1 auto;
+}
+
+footer {
+    flex: 0 0 auto;
+    padding-top: 1em;
+    background-color: #4a4e69;
+}
+
+.link {
+    color: #61dafb;
+}
+
+.content {
+    flex: 1 1 auto;
+    background-color: #22223b;
+    overflow: hidden;
+    display: flex;
+    flex-flow: column;
+}
+
+.logview {
+    display: flex;
+    flex-flow: column;
+    padding: 3em;
+    color: #909090;
+    align-items: flex-start;
+}
+
+.logview span i {
+    padding-right: 1em;
+    opacity: 0.4;
+}
+
+.progress-header-running,
+.progress-header-done {
+    display: none;
+    flex-flow: column;
+    align-items: center;
+    color: #00af00;
+}
+
+.progress-header-initial {
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+}
+
+.progress-header-error {
+    display: none;
+    flex-flow: column;
+    align-items: center;
+    color: #600000;
+    background: #fff8dd;
+    border-radius: 1vw;
+    padding: 0 1em;
+    margin-bottom: 1em;
+}
+
+.progress-header-title {
+    flex-flow: row;
+    display: flex;
+    align-items: center;
+}
+
+.progress-header-title img,
+.progress-header-title i {
+    padding-right: 1em;
+}
+
+.progress-header-msg {
+    padding-bottom: 1em;
+    flex-flow: row;
+    display: flex;
+    align-items: center;
+    text-align: center;
+    justify-content: center;
+    font-size: calc(4px + 1.2vw);
+}

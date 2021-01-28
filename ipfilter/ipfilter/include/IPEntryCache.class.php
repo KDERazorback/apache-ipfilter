@@ -1,4 +1,6 @@
 <?php
+namespace RazorSoftware\IpFilter;
+
 class IPEntryCache {
     public $id;
     public $ip_dec;
@@ -20,7 +22,7 @@ class IPEntryCache {
 
     static function entryExists($ip_dec) {
         if (empty($ip_dec))
-            throw new Exception("Invalid Operation. Entry is not set.");
+            throw new \Exception("Invalid Operation. Entry is not set.");
     
         $conn = DbConnection::open_connection();
 
@@ -36,11 +38,11 @@ class IPEntryCache {
 
     function insert() {
         if (isset($id)) {
-            throw new Exception("Invalid Operation. ID not expected.");
+            throw new \Exception("Invalid Operation. ID not expected.");
         }
 
         if (entryExists($this->ip_dec))
-            throw new Exception("Invalid Operation. Invalid IP on CACHE.");
+            throw new \Exception("Invalid Operation. Invalid IP on CACHE.");
 
         $this->conn = DbConnection::open_connection();
 
@@ -49,7 +51,7 @@ class IPEntryCache {
             VALUES (?, ?, ?)");
 
         if (empty($this->ip_dec) || strlen($this->ip_dec) < 7 || strlen($this->ip_dec) > 15)
-            throw new Exception("Invalid Operation. Invalid data.");
+            throw new \Exception("Invalid Operation. Invalid data.");
 
         $stmt->bind_param("iii", $this->ip_dec, $this->filtered, $this->filter);
 

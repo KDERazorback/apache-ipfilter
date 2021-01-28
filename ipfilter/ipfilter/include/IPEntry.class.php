@@ -1,4 +1,6 @@
 <?php
+namespace RazorSoftware\IpFilter;
+
 class IPEntry {
     public $id;
     public $ip_cidr;
@@ -24,7 +26,7 @@ class IPEntry {
 
     static function entryExists($ip_min) {
         if (empty($ip_min))
-            throw new Exception("Invalid Operation. Entry is not set.");
+            throw new \Exception("Invalid Operation. Entry is not set.");
     
         $conn = DbConnection::open_connection();
 
@@ -43,16 +45,36 @@ class IPEntry {
 
         $conn = DbConnection::open_connection();
 
-        $stmt = $conn->get_connection()->prepare("SELECT * FROM `" . RZIPF_DB_TABLE_IPENTRYCACHE . "` WHERE `ip_dec`=? LIMIT 1");
+        /* find ip address on cache table first */
+        $stmt = $conn->get_connection()->prepare("
+            SELECT
+                `id`,
+                `ip_dec`,
+                `filtered`,
+                `filter`
+            FROM 
+                `" . RZIPF_DB_TABLE_IPENTRYCACHE . "`
+            WHERE 
+                `ip_dec`=? 
+            LIMIT 1");
         $stmt->bind_param("i", $addr_dec);
         $stmt->execute();
         $stmt->store_result();
         $result_set = DbConnection::parse_mysqli_results($stmt);
         $stmt->free_result();
         $stmt->close();
+        $stmt = NULL;
 
-        if ($result_set != NULL) {
+        if (!empty($result_set) && is_array($result_set) && count($result_set) > 0) {
+            /* cache hit */
             $cached = IPEntryCache::fromResult($result_set[0]);
+            // if (shouldLog())
+            //     log(sprintf(
+            //         "cache hit for address [%s] with cache_id [%s]. rule_id [%s]. [%s]",
+            //         $ip_address,
+            //         $cached->id,
+            //         $cached->filter,
+            //         ($cached->filter == NULL || $cached->filtered == 0) ? "GRANTED" : "FILTERED" ));
 
             if ($cached->filter == NULL) {
                 return NULL;
@@ -62,31 +84,63 @@ class IPEntry {
                 return NULL;
             }
 
-            $stmt = $conn->get_connection()->prepare("SELECT * FROM `" . RZIPF_DB_TABLE_IPENTRY . "` WHERE `id`=?");
+            $stmt = $conn->get_connection()->prepare("
+                SELECT
+                    `id`,
+                    `ip_cidr`,
+                    `enabled`,
+                    `date_added`,
+                    `ip_dec_min`,
+                    `ip_dec_max`
+                FROM
+                    `" . RZIPF_DB_TABLE_IPENTRY . "`
+                WHERE
+                    `id`=?");
             $stmt->bind_param("i", $cached->filter);
             $stmt->execute();
             $stmt->store_result();
             $result_set = DbConnection::parse_mysqli_results($stmt);
             $stmt->free_result();
             $stmt->close();
+            $stmt = NULL;
 
-            if ($result_set == NULL) {
+            if (empty($result_set) || count($result_set) < 1) {
+                if (shouldLog())
+                log(sprintf(
+                    "WARNING: invalid cache entry for address [%s]. parent rule [%s] not found",
+                    $ip_address,
+                    $cached->filter));
                 return NULL;
             }
 
             return IPEntry::fromResult($result_set[0]);
         }
 
-        $stmt = $conn->get_connection()->prepare("SELECT * FROM `" . RZIPF_DB_TABLE_IPENTRY . "` WHERE `ip_dec_min`<=? AND `ip_dec_max`>=? AND `enabled`=1 LIMIT 1");
+        /* cache miss */
+        $stmt = $conn->get_connection()->prepare("
+            SELECT
+                `id`,
+                `ip_cidr`,
+                `enabled`,
+                `date_added`,
+                `ip_dec_min`,
+                `ip_dec_max`
+            FROM
+                `" . RZIPF_DB_TABLE_IPENTRY . "`
+            WHERE
+                `ip_dec_min`<=?
+                AND `ip_dec_max`>=?
+                AND `enabled`=1
+            LIMIT 1");
         $stmt->bind_param("ii", $addr_dec, $addr_dec);
         $stmt->execute();
         $stmt->store_result();
         $result_set = DbConnection::parse_mysqli_results($stmt);
         $stmt->free_result();
         $stmt->close();
+        $stmt = NULL;
 
-        if ($result_set == NULL) {
-            $stmt->close();
+        if (empty($result_set) || count($result_set) == 0) {
             $filtered = 0;
             $stmt = $conn->get_connection()->prepare("INSERT INTO `" . RZIPF_DB_TABLE_IPENTRYCACHE . "` 
             (`ip_dec`, `filtered`) 
@@ -94,6 +148,11 @@ class IPEntry {
             $stmt->bind_param("ii", $addr_dec, $filtered);
             $stmt->execute();
             $stmt->close();
+
+            if (shouldLog())
+                log(sprintf(
+                    "cache miss for address [%s]. no matching rule. cached. [GRANTED]",
+                    $ip_address));
 
             return NULL;
         }
@@ -107,19 +166,26 @@ class IPEntry {
         $stmt->bind_param("iii", $addr_dec, $filtered, $filterid);
         $stmt->execute();
         $stmt->close();
+        $stmt = NULL;
+
+        if (shouldLog())
+                log(sprintf(
+                    "cache miss for address [%s]. matching rule_id [%s]. cached. [FILTERED]",
+                    $ip_address,
+                    $filter_entry->id));
 
         return $filter_entry;
     }
 
     function insert() {
         if (isset($id)) {
-            throw new Exception("Invalid Operation. ID not expected.");
+            throw new \Exception("Invalid Operation. ID not expected.");
         }
 
         $this->calculate();
 
         if (IPFilter::entryExists($this->ip_dec_min))
-            throw new Exception("Invalid Operation. Invalid IP CIDR.");
+            throw new \Exception("Invalid Operation. Invalid IP CIDR.");
 
         $this->conn = DbConnection::open_connection();
 
@@ -128,7 +194,7 @@ class IPEntry {
             VALUES (?, ?, ?, ?)");
 
         if (empty($this->ip_cidr) || strlen($this->ip_cidr) < 7 || strlen($this->ip_cidr) > 18)
-            throw new Exception("Invalid Operation. Invalid data.");
+            throw new \Exception("Invalid Operation. Invalid data.");
 
         $stmt->bind_param("siii", $this->ip_cidr, $this->enabled, $this->ip_dec_min, $this->ip_dec_max);
 
@@ -142,15 +208,15 @@ class IPEntry {
         $addrlen = 32 - $masklen;
 
         if ($addrlen < 1) {
-            throw new Exception("Invalid Operation. Invalid Mask.");
+            throw new \Exception("Invalid Operation. Invalid Mask.");
         }
             
         $netaddress = IPEntry::toDecAddress($this->ip_cidr);
         $addr_max = (2 ^ $addrlen) - 1;
         $mask = (0xFFFFFFFF xor $addr_max) and $netaddress;
 
-        $this->ip_dec_min = $mask + 1;
-        $this->ip_dec_max = $mask + $addr_max;
+        $this->ip_dec_min = abs($mask + 1);
+        $this->ip_dec_max = abs($mask + $addr_max);
         $enabled = 1;
     }
 
@@ -171,7 +237,7 @@ class IPEntry {
             $offset = $offset_last + 1;
         }
 
-        return $netaddress;
+        return abs($netaddress);
     }
 }
 ?>
