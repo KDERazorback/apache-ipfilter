@@ -1,3 +1,7 @@
+<?php
+    include_once (__DIR__ . '/../include/functions.php');
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -49,7 +53,7 @@
                 </div>
             </main>
             <footer class="footer">
-                <span>RazorSoftware IpFilter Setup monitoring tool</span>
+                <span>RazorSoftware IpFilter Setup monitoring tool <?php (defined('__RZIPF_DRIVER_VERSION__') ? __RZIPF_DRIVER_VERSION__ : "--unknown version--") ?></span>
             </footer>
         </div>
     </div>
