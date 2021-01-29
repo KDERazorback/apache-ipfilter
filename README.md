@@ -1,39 +1,51 @@
 # Installation Instructions
-_For WordPress users_
 
-## Database Configuration
-1. Create a new Empty database schema for the GeoIP Tables on the host where WordPress is running, with its own username, initially with remote access granted.
-2. Inserts the Server credentials and database information into a new answers file for NRODbGen
-3. Run the NRODbGen tool to populate the geoip table on the remote host with the latest IP allocation data from global NROs.
-4. Create a copy of the database template file database.sql and customize the table prefixes to your needs.
-5. Execute the SQL File on the remote database schema to create the new empty table structures for ipfilter.
-6. Create a copy of the filter generation template file geoip-2-filter.sql and customize it to your needs.
-7. Execute the filter generation file on the remote database schema to generate the filtering rules for IPFilter
-8. Export the resulting table to a new SQL file, and wrap the entries around INSERT statements into the **ipentry** table on the remote database schema.
+## Requirements
+- MySQL/MariaDB (tested with 15)
+- Apache2 with PHP >= 7.0
+- Ability to set `auto_prepend_file` for the server
+
+## Prerequisites
+- Download the NRODbGen tool binaries from the repository, or optionally compile it from source.
+
+
+## GeoIP Database Compilation
+- Create a new empty database schema for the GeoIP tables on the host where MySQL/MariaDB is running, with its own username, initially with remote access granted.
+- Run the NRODbGen tool without arguments. This will output a new answers file from its templates into the current directory.
+    - _This file is used to configure the behaviour of the NRODbGen tool._
+- Tweak the generated answers file to suit your needs. Be sure to insert the Server credentials and database details for remote database access.
+    - Its recommended to also save the GeoIP schema to an SQL file on disk to avoid requesting it again from the NRO servers.
+- Run the NRODbGen tool to populate the geoip table on the remote host with the latest IP allocation data from global NROs. Specifying the answers file with the following syntax:
+    `nrodbgen.exe /answers=answers_file.txt`
+
+
+## Driver installation
+- Create a new empty database schema for the driver tables on the host where the driver will be running, with its own username, with local access only.
+- From the `public` directory, be sure to edit the following files, updating the database configurations and tweaking as needed:
+    - `ipfilter/config.php`
+    - `ipfilter/setup/config_setup.php` _(only used during setup)_
+- Move the entire `ipfilter` directory from the `public` folder, as well as the `filter.php` file into the root of your web server.
+- Browse to the `/ipfilter/setup/` directory of your web server using the browser of your choice.
+- Once the installation succeeds. Edit your php.ini file and add the following entry:
+    `auto_prepend_file   <path to the filter.php file on your web directory>`
+- Once confirmed the server is loading the filter plugin normally, remove the `setup` directory and the `setup.php` file on the root of the server.
 
 
 ## Administration interface
-1. Upload the management plugin rz-ipfilter-manager zip file into your Wordpress installation via the Add Plugin menu on the Administration Dashboard.
+1. Upload the management plugin `rz-ipfilter-manager` zip file into your Wordpress installation via the Add Plugin menu on the Administration Dashboard.
 2. Activate the uploaded plugin.
 3. Under the new IPFilter tab on the sidebar for the Administration Dashboard of Wordpress, select the Settings submenu, and update the database settings to
-the new Database schema created on the previous step. Save the settings.
+   the new Database schema created on the previous step. Save the settings.
 4. Browse the IPFilter and Top Entries submenus and ensure that no connection errors appear when clicking on Refresh.
-
-## Driver installation
-1. Customize the ipfilter firewall driver configuration file located at ipfilter/ipfilter/config.php to match your server settings. If a preppend file is already defined
-in the php.ini settings, set the existing entry under the RZIPF_PHP_NEXTFILE definition. If no file is currently set, leave the definition set to an empty string.
-2. Upload via FTP the ipfilter firewall driver located at the ipfilter directory to the root of your web server. Upload the contents of the directory and not the directory itself.
- Dont upload any .SQL file and ignore debug.php file. The file filter.php must be located at the root of the web server public directory.
-3. Set the **auto_prepend_file** PHP variable inside your web server (by using php.ini) and point it to the full path of the **filter.php** file uploaded to the server.
-4. Check that everything is properly configured and no PHP errors appear on page output during normal browsing.
 
 
 ## Validate configuration
-1. No PHP output must be generated by the filtering driver during normal browsing.
-2. Ensure that the "X-RZ-Floodgate" header is present on every HTTP response from the server. A value of 0 means that the current IP is allowed, a value of 1 means its filtered.
-This header could be ommited from the response if the Wordpress engine clears the Headers structure after loading, to avoid this, make sure to test its presence by browsing
-to an static resource like an image, css script, etc.
+1. No PHP output must be generated by the filtering driver (`/filter.php`) during normal browsing.
+2. Ensure that the "X-RZ-Floodgate" header is present on the HTTP response from the first query issued to server. 
+    - A value of 0 means that the current IP is allowed, a value of 1 means its filtered.
+    - This header could be ommited from the response if the Wordpress engine clears the Headers structure after loading, to avoid this, make sure to test its presence by browsing
+      to an static resource like an image, css script, etc.
 3. Ensure that your browsing IP is present on the cache table for ipfilter. Every unique visitor must be listed on this table, and a value on the **filtered** column indicates if
-the browsing address is filtered by the driver or not.
-4. If another auto_prepend_file was present on the PHP configuration before installing the IPFilter driver, check that chainloading workds by checking if its 
-execution still happens after the driver runs.
+   the browsing address is filtered by the driver or not.
+4. If another auto_prepend_file was present on the PHP configuration before installing the IPFilter driver, check that chainloading works by making sure its 
+   execution still happens after the driver runs.
