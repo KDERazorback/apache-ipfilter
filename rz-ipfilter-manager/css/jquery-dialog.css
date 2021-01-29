@@ -1,0 +1,71 @@
+.ui-dialog {
+  padding: 2em;
+  border: 2px solid #ccc;
+  border-radius: 0.5em;
+  background-color: #fcfcfc;
+}
+
+.ui-dialog .ui-dialog-titlebar {
+  display: none;
+}
+
+.ui-dialog .ui-dialog-content {
+  border: 0;
+  padding: 20px;
+  font-size: 18px;
+  overflow: auto;
+  min-height: unset;
+}
+
+.ui-dialog .ui-dialog-buttonpane .ui-dialog-buttonset {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+
+.ui-dialog .ui-dialog-buttonpane button {
+  margin: 0.5em 0.4em 0.5em 0;
+  cursor: pointer;
+  padding: 0.6em 1.4em;
+  background-color: #009f0c;
+  color: #141414;
+  font-size: 1em;
+  border: 1px solid #004705;
+  border-radius: 10%;
+  font-weight: bold;
+  box-shadow: 2px 8px 18px 1px rgba(0.3, 1, 0.3, 0.5);
+}
+
+.ui-dialog .ui-dialog-buttonpane button:hover {
+  background-color: #789f00;
+  color: #000000;
+  translate: 1px 2px;
+  text-decoration: underline;
+}
+
+.ui-dialog .ui-resizable-se {
+  width: 12px;
+  height: 12px;
+  right: -5px;
+  bottom: -5px;
+  background-position: 16px 16px;
+}
+
+.ui-draggable-handle {
+  -ms-touch-action: none;
+  touch-action: none;
+}
+
+.ui-dialog .ui-dialog-buttonpane .ui-dialog-buttonset .yescls {
+  font-size: 15px;
+  color: #ffffff;
+  width: 150px;
+  background: #90c93e;
+}
+
+.ui-dialog .ui-dialog-buttonpane .ui-dialog-buttonset .cancelcls {
+  font-size: 15px;
+  color: #ffffff;
+  width: 150px;
+  background: #f86379;
+}

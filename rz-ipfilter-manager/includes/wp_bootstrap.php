@@ -1,8 +1,37 @@
 <?php
+
+$getWordpressPath = function () {
+    $basePath = $_SERVER['DOCUMENT_ROOT'];
+
+    if (empty($basePath))
+        return NULL;
+
+    $pwd = __DIR__;
+
+    while (TRUE) {
+        $candidate = $pwd . '/wp-load.php';
+        
+        if (file_exists($candidate)) {
+            return $candidate;
+        }
+
+        if (strcmp($pwd, $basePath) === 0) {
+            return NULL; // End of document root
+        }
+
+        $new_pwd = dirname($pwd);
+        if (strcmp($pwd, $new_pwd) === 0) {
+            return NULL; // Loop detected
+        }
+
+        $pwd = $new_pwd;
+    }
+};
+
 // Bring up the WP environment
 session_start();
 define('SHORTINIT', true);
-$loader = $_SERVER['DOCUMENT_ROOT'] . '/wp-load.php';
+$loader = $getWordpressPath();
 $config = __DIR__ . '/config.php';
 
 if (file_exists($loader))
@@ -52,7 +81,7 @@ if (!function_exists('current_user_can'))
 require_once $config;
 
 # Elements defined in config.php
-if (!defined('RZ_IPFILTER_VERSION'))
+if (!defined('__RZ_IPFILTER_VERSION__'))
     die("Access Denied. Code 0x10");
 
 if (!defined('RZ_IPFILTER_ROLE_MANAGE'))

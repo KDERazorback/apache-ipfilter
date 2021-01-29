@@ -1,15 +1,13 @@
 <?php
 if (!defined('ABSPATH')) {
-    //rz_ipfilter_log ( 'no ABSPATH defined in ipfilter-admin.php');
     wp_die ( 'Invalid call to ipfilter-admin.php on IPFilter plugin. No ABSPATH defined' );
 }
-if (!defined('RZ_IPFILTER_VERSION')) { 
-    //rz_ipfilter_log ( 'no RZ_IPFILTER_VERSION defined in ipfilter-admin.php');
+if (!defined('__RZ_IPFILTER_VERSION__')) { 
     wp_die ( 'Invalid call to ipfilter-admin.php on IPFilter plugin. No VERSION variable defined' );
 }
 
 
-class RZ_IpFilter {
+class Rz_IpFilter {
     public $version = '';
     public $directory = '';
     public $options = '';
@@ -74,6 +72,10 @@ class RZ_IpFilter {
             'jtable-blue',
             RZ_IPFILTER_URL . '/external/jtable/themes/metro/blue/jtable.min.css'
         );
+        wp_enqueue_style(
+            'iptable-jquery-dialog',
+            RZ_IPFILTER_URL . '/css/jquery-dialog.css'
+        );
 
         # Set required JS variables
         ?>
@@ -128,6 +130,10 @@ class RZ_IpFilter {
             'jtable-blue',
             RZ_IPFILTER_URL . '/external/jtable/themes/metro/blue/jtable.min.css'
         );
+        wp_enqueue_style(
+            'iptable-jquery-dialog',
+            RZ_IPFILTER_URL . '/css/jquery-dialog.css'
+        );
 
         # Set required JS variables
         ?>
@@ -166,6 +172,9 @@ class RZ_IpFilter {
     }
 
     public function adminHook() {
+        if (!is_admin() || !rz_ipfilter_can_manage())
+            return;
+
         add_menu_page(
             'IPFilter Analytics',
             'IPFilter',
@@ -192,6 +201,8 @@ class RZ_IpFilter {
             'rz-ipfilter-manage-settings',
             array ( $this, 'settings_html' )
         );
+
+        $this->init_menu();
     }
 
     public function __construct($dir, $ver, $opt) {
@@ -205,7 +216,7 @@ class RZ_IpFilter {
         $this->options = $opt;
         $this->optionsArr = $opt->getArray();
 
-        add_action( 'admin_menu', array ( $this, 'adminHook' ));
+        add_action('admin_menu', array ( $this, 'adminHook' ));
     }
 
     function settings_db_html() {
@@ -272,7 +283,7 @@ class RZ_IpFilter {
         }
 
         $key = 'db_password';
-        if (!empty($input[$key]) && preg_match('/^.{8,32}$/i', $input[$key])) {
+        if (!empty($input[$key]) && preg_match('/^.{1,64}$/i', $input[$key])) {
             $options->Password = trim($input[$key]);
         }
 

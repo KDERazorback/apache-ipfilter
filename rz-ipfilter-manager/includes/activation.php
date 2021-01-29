@@ -2,7 +2,7 @@
 if (!defined('ABSPATH')) {
     exit;
 }
-if (!defined('RZ_IPFILTER_VERSION') || !defined('RZ_IPFILTER_ROLE_MANAGE')) { 
+if (!defined('__RZ_IPFILTER_VERSION__') || !defined('RZ_IPFILTER_ROLE_MANAGE')) { 
     die;
 }
 

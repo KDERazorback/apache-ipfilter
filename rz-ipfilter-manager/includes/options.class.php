@@ -2,7 +2,7 @@
 if (!defined('ABSPATH')) {
     die;
 }
-if (!defined('RZ_IPFILTER_VERSION')) { 
+if (!defined('__RZ_IPFILTER_VERSION__')) { 
     die;
 }
 
@@ -17,6 +17,8 @@ define('RZ_IPFILTER_OPTION_PREFIX', 'rz_ipfilter_db_prefix');
 define('RZ_IPFILTER_OPTION_GEOIP_SCHEMA', 'rz_ipfilter_db_geoipschema');
 define('RZ_IPFILTER_OPTION_GEOIP_TABLENAME', 'rz_ipfilter_db_geoiptablename');
 define('RZ_IPFILTER_OPTION_GEOIP_PREFIX', 'rz_ipfilter_db_geoipprefix');
+define('RZ_IPFILTER_OPTION_CONFIGURED', 'rz_ipfilter_configured');
+
 
 class RZ_IpFilter_Options {
     public $Endpoint = '';
@@ -31,6 +33,14 @@ class RZ_IpFilter_Options {
     public $GeoipTableName = 'geoip';
     public $GeoipTablePrefix = 'live_';
 
+    public $configured = FALSE;
+
+    public function valid() {
+        return !(empty($this->Username) ||
+            empty($this->Hostname) ||
+            empty($this->Schema) ||
+            !$this->Configured);
+    }
 
     public function create() {
         add_option(RZ_IPFILTER_OPTION_ENDPOINT, $this->Endpoint);
@@ -44,6 +54,8 @@ class RZ_IpFilter_Options {
         add_option(RZ_IPFILTER_OPTION_GEOIP_SCHEMA, $this->GeoipSchema);
         add_option(RZ_IPFILTER_OPTION_GEOIP_TABLENAME, $this->GeoipTableName);
         add_option(RZ_IPFILTER_OPTION_GEOIP_PREFIX, $this->GeoipTablePrefix);
+
+        add_option(RZ_IPFILTER_OPTION_CONFIGURED, $this->Configured);
     }
 
     public function delete() {
@@ -58,6 +70,8 @@ class RZ_IpFilter_Options {
         delete_option(RZ_IPFILTER_OPTION_GEOIP_SCHEMA);
         delete_option(RZ_IPFILTER_OPTION_GEOIP_TABLENAME);
         delete_option(RZ_IPFILTER_OPTION_GEOIP_PREFIX);
+
+        delete_option(RZ_IPFILTER_OPTION_CONFIGURED);
     }
 
     public function save() {
@@ -72,6 +86,8 @@ class RZ_IpFilter_Options {
         update_option(RZ_IPFILTER_OPTION_GEOIP_SCHEMA, $this->GeoipSchema);
         update_option(RZ_IPFILTER_OPTION_GEOIP_TABLENAME, $this->GeoipTableName);
         update_option(RZ_IPFILTER_OPTION_GEOIP_PREFIX, $this->GeoipTablePrefix);
+
+        update_option(RZ_IPFILTER_OPTION_CONFIGURED, TRUE);
     }
 
     public function load() {
@@ -83,9 +99,11 @@ class RZ_IpFilter_Options {
         $this->Password = get_option(RZ_IPFILTER_OPTION_PASSWORD, '');
         $this->TablePrefix = get_option(RZ_IPFILTER_OPTION_PREFIX, 'live_');
 
-        $this->GeoipSchema = get_option(RZ_IPFILTER_OPTION_GEOIP_SCHEMA, 'iptables');
-        $this->GeoipTableName = get_option(RZ_IPFILTER_OPTION_GEOIP_TABLENAME, 'geoip');
+        $this->GeoipSchema = get_option(RZ_IPFILTER_OPTION_GEOIP_SCHEMA, 'geoip');
+        $this->GeoipTableName = get_option(RZ_IPFILTER_OPTION_GEOIP_TABLENAME, 'iptable');
         $this->GeoipTablePrefix = get_option(RZ_IPFILTER_OPTION_GEOIP_PREFIX, 'live_');
+
+        $this->Configured = get_option(RZ_IPFILTER_OPTION_CONFIGURED, FALSE);
     }
 
     public function getArray() {
@@ -102,6 +120,8 @@ class RZ_IpFilter_Options {
         $output['geoip_schema']=$this->GeoipSchema;
         $output['geoip_tablename']=$this->GeoipTableName;
         $output['geoip_tableprefix']=$this->GeoipTablePrefix;
+
+        $output['configured']=$this->Configured;
 
         return $output;
     }

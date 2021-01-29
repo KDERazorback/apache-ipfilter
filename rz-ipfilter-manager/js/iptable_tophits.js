@@ -3,7 +3,6 @@ jQuery(document).ready(function ($) {
         title: 'Top Offending IP addresses (unique)',
         actions: {
             listAction: function (postData, jtParams) {
-                console.log("listAction called.");
                 return $.Deferred(function ($dfd) {
                     $.ajax({
                         url: `${iptable_endpoint_url}`,
@@ -58,7 +57,6 @@ jQuery(document).ready(function ($) {
         title: 'Top Offending Countries (unique)',
         actions: {
             listAction: function (postData, jtParams) {
-                console.log("listAction called.");
                 return $.Deferred(function ($dfd) {
                     $.ajax({
                         url: `${iptable_endpoint_url}`,
@@ -109,7 +107,6 @@ jQuery(document).ready(function ($) {
         title: 'Top Offending Sub-networks (unique in CIDR notation)',
         actions: {
             listAction: function (postData, jtParams) {
-                console.log("listAction called.");
                 return $.Deferred(function ($dfd) {
                     $.ajax({
                         url: `${iptable_endpoint_url}`,

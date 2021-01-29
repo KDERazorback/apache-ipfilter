@@ -5,7 +5,6 @@ jQuery(document).ready(function ($) {
         pageSize: 50,
         actions: {
             listAction: function (postData, jtParams) {
-                console.log("listAction called.");
                 return $.Deferred(function ($dfd) {
                     $.ajax({
                         url: `${iptable_endpoint_url}`,
@@ -26,23 +25,23 @@ jQuery(document).ready(function ($) {
                 });
             },
 
-            deleteAction: function (postData) {
-                console.log("deleteAction called.");
-                return $.Deferred(function ($dfd) {
-                    $.ajax({
-                        url: `${iptable_endpoint_url}`,
-                        type: 'POST',
-                        dataType: 'json',
-                        data: { action: 'deleteHitRecord', data: postData },
-                        success: function (data) {
-                            $dfd.resolve(data);
-                        },
-                        error: function () {
-                            $dfd.reject();
-                        }
-                    });
-                });
-            },
+            // deleteAction: function (postData) {
+            //     console.log("deleteAction called.");
+            //     return $.Deferred(function ($dfd) {
+            //         $.ajax({
+            //             url: `${iptable_endpoint_url}`,
+            //             type: 'POST',
+            //             dataType: 'json',
+            //             data: { action: 'deleteHitRecord', data: postData },
+            //             success: function (data) {
+            //                 $dfd.resolve(data);
+            //             },
+            //             error: function () {
+            //                 $dfd.reject();
+            //             }
+            //         });
+            //     });
+            // },
         },
         fields: {
             id: {

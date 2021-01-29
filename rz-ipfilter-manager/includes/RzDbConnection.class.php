@@ -1,5 +1,5 @@
 <?php
-    class RzDbConnection {
+    class Rz_IpFilter_DbConnection {
         private $conn;
 
         /*
@@ -44,7 +44,7 @@
         }
 
         static function open_connection() {
-            return new RzDbConnection();
+            return new Rz_IpFilter_DbConnection();
         }
     }
 ?>

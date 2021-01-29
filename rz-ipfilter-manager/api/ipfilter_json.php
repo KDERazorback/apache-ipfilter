@@ -1,8 +1,7 @@
 <?php
-
 if (!defined('ABSPATH'))
     require_once ( __DIR__ . "/../includes/wp_bootstrap.php" );
-if (!defined('RZ_IPFILTER_VERSION'))
+if (!defined('__RZ_IPFILTER_VERSION__'))
     require_once ( __DIR__ . "/../includes/config.php" );
 
 if (!function_exists('wp_die') || !function_exists('rz_ipfilter_can_manage'))
@@ -24,13 +23,13 @@ $result = array();
 $result['Action']=$action;
 $result['Records']=array();
 
-function return_json($result, $code = 'OK', $msg = '') {
+$return_json = function ($result, $code = 'OK', $msg = '') {
     $result['Result'] = $code;
     $result['Message'] = empty($msg) ? "$code " . $result['Action'] : $msg;
     $result['RecordCount'] = (!is_null($result['Records']) && is_array($result['Records'])) ? sizeof($result['Records']) : 0;
     echo json_encode($result);
     exit;
-}
+};
 
 require_once ( __DIR__ . '/../includes/AnalyticRecords.class.php');
 
@@ -50,8 +49,10 @@ switch ($action) {
     case 'getHitRecords':
         $opt = new RZ_IpFilter_Options();
         $opt->load();
-        $conn = new RzDbConnection($opt->Hostname, $opt->Username, $opt->Password, $opt->Schema);
-        $instance = new AnalyticRecords($conn, $opt);
+        if (!$opt->valid())
+            die("Request rejected. Server not configured.");
+        $conn = new Rz_IpFilter_DbConnection($opt->Hostname, $opt->Username, $opt->Password, $opt->Schema);
+        $instance = new Rz_IpFilter_AnalyticRecords($conn, $opt);
 
         $records = $instance->getRecords($offset, $count, $groupby);
         $result['Records'] = $records;
@@ -61,11 +62,11 @@ switch ($action) {
         $result['TotalRecordCount'] = $record_count;
         $result['startIndex'] = $offset;
 
-        return_json($result, 'OK');
+        $return_json($result, 'OK');
         break;
 
     default:
-        return_json($result, 'ERROR', "The server did not understand your request. Invalid action");
+        $return_json($result, 'ERROR', "The server did not understand your request. Invalid action");
         break;
 }
 

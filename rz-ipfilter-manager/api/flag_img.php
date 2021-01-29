@@ -5,7 +5,7 @@ error_reporting(P_ERROR);
 
 if (!defined('ABSPATH'))
     require_once ( __DIR__ . "/../includes/wp_bootstrap.php" );
-if (!defined('RZ_IPFILTER_VERSION'))
+if (!defined('__RZ_IPFILTER_VERSION__'))
     require_once ( __DIR__ . "/../includes/config.php" );
 
 if (!function_exists('wp_die') || !function_exists('rz_ipfilter_can_manage'))
@@ -29,7 +29,7 @@ $cc_top = strtoupper($country);
 
 $file = __DIR__ . "/../external/flags/$country.png";
 
-function send_file($file, $cc) {
+$send_file = function($file, $cc) {
     if (!headers_sent()) {
         header("Content-Description: Flag Image for $cc");
         header('Content-Type: image/png');
@@ -38,13 +38,13 @@ function send_file($file, $cc) {
     flush();
     readfile($file);
     flush();
-}
+};
 
 if (file_exists($file)) {
-    send_file($file, $cc_top);
+    $send_file($file, $cc_top);
 } else {
     $file = __DIR__ . "/../external/no_flag.png";
-    send_file($file, $cc_top);
+    $send_file($file, $cc_top);
 }
 
 die;

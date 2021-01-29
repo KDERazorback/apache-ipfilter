@@ -1,10 +1,13 @@
 <?php
 
-define('RZ_IPFILTER_VERSION', '0.0.1');
 define('RZ_IPFILTER_DIR',  realpath(dirname (__DIR__)));
 define('RZ_IPFILTER_ROLE_MANAGE', 'rz_ipfilter_manager');
 define('RZ_IPFILTER_CAP_MANAGE', 'rz_ipfilter_manage');
 define('RZ_IPFILTER_OPTIONS', 'rz_ipfilter_options');
+
+if (!defined('__RZ_IPFILTER_VERSION__'))
+    define('__RZ_IPFILTER_VERSION__', 'unset');
+
 if (function_exists('plugins_url'))
     define('RZ_IPFILTER_URL', dirname (plugins_url( '', __FILE__ )));
 else {
