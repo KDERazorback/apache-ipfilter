@@ -4,9 +4,10 @@
 - MySQL/MariaDB (tested with 15)
 - Apache2 with PHP >= 7.0
 - Ability to set `auto_prepend_file` for the server
+- GeoIP Database generation utility from [nro-geoip](https://github.com/KDERazorback/nro_geoip/releases)
 
 ## Prerequisites
-- Download the NRODbGen tool binaries from the repository, or optionally compile it from source.
+- Download the NROIpDbGen tool binaries from [nro-geoip](https://github.com/KDERazorback/nro_geoip) repository, or optionally compile it from source.
 
 
 ## GeoIP Database Compilation
