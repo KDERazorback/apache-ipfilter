@@ -1,4 +1,21 @@
-# Installation Instructions
+[![License: GPL v2](https://img.shields.io/badge/License-GPL%20v2-blue.svg)](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html)
+
+# IpFilter - IP Address region Filtering for Apache
+
+Provides a very simple, yet effective way of filtering access to a PHP-enabled Apache web server, from a customizable set of CIDR addresses
+stored on MySQL databases. Clients are filtered before the request is actually served, using the `auto_prepend_file` php setting, transparently
+to other resources on the server.
+
+Once a request is received by the server, the filtering server kicks in and compares the source address against a defined set of CIDR ranges from
+the database, if a match is found, the result is cached and the connection is closed without further forwarding. Analytics data is generated and stored
+on the database for further analisis.
+
+Also includes a simple Wordpress plugin for viewing filtering statistics and top offenders.
+
+This script is intended for reducing traffic impact on servers from selected regions, but could also be used to restrict access to the server selectively.
+
+> Note that the effectiveness of the driver is directly related to the quality of its filters.
+
 
 ## Requirements
 - MySQL/MariaDB (tested with 15)
