@@ -1,4 +1,5 @@
 <?php
+
 namespace RazorSoftware\IpFilter;
 
 class DbConnection
@@ -17,14 +18,15 @@ class DbConnection
         $data = array();
         $results = array();
         $meta = $stmt->result_metadata();
-        
+
         while ($field = $meta->fetch_field()) {
             $params[] = &$data[$field->name];
         } // pass by reference
-        
+
         call_user_func_array(array($stmt, 'bind_result'), $params);
-        
+
         while ($stmt->fetch()) {
+            $c = array();
             foreach ($data as $key => $val) {
                 $c[$key] = $val;
             }

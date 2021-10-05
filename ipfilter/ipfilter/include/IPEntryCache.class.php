@@ -1,4 +1,5 @@
 <?php
+
 namespace RazorSoftware\IpFilter;
 
 class IPEntryCache
@@ -8,7 +9,6 @@ class IPEntryCache
     public $filtered;
     public $filter;
     private $conn;
-    private $table = RZIPF_DB_TABLE_IPENTRYCACHE;
 
     public static function fromResult($result_set)
     {
@@ -27,8 +27,9 @@ class IPEntryCache
         if (empty($ip_dec)) {
             throw new \Exception("Invalid Operation. Entry is not set.");
         }
-    
+
         $conn = DbConnection::open_connection();
+        $count = 0;
 
         $stmt = $conn->get_connection()->prepare("SELECT COUNT(`ip_dec`) FROM `" . RZIPF_DB_TABLE_IPENTRYCACHE . "` WHERE `ip_dec`=?");
         $stmt->bind_param("i", $ip_dec);
@@ -70,6 +71,7 @@ class IPEntryCache
     public static function cacheSize()
     {
         $conn = DbConnection::open_connection();
+        $count = 0;
 
         $stmt = $conn->get_connection()->prepare("SELECT COUNT(`ip_dec`) FROM `" . RZIPF_DB_TABLE_IPENTRYCACHE . "`");
         $stmt->execute();

@@ -1,4 +1,5 @@
 <?php
+
 namespace RazorSoftware\IpFilter;
 
 class IPEntry
@@ -10,7 +11,6 @@ class IPEntry
     public $ip_dec_min;
     public $ip_dec_max;
     private $conn;
-    private $table = RZIPF_DB_TABLE_IPENTRY;
 
     public static function fromResult($result_set)
     {
@@ -31,8 +31,9 @@ class IPEntry
         if (empty($ip_min)) {
             throw new \Exception("Invalid Operation. Entry is not set.");
         }
-    
+
         $conn = DbConnection::open_connection();
+        $count = 0;
 
         $stmt = $conn->get_connection()->prepare("SELECT COUNT(`ip_dec_min`) FROM `" . RZIPF_DB_TABLE_IPENTRY . "` WHERE `ip_dec_min`=?");
         $stmt->bind_param("i", $ip_min);
@@ -225,14 +226,13 @@ class IPEntry
         if ($addrlen < 1) {
             throw new \Exception("Invalid Operation. Invalid Mask.");
         }
-            
+
         $netaddress = IPEntry::toDecAddress($this->ip_cidr);
         $addr_max = (2 ^ $addrlen) - 1;
         $mask = (0xFFFFFFFF xor $addr_max) and $netaddress;
 
         $this->ip_dec_min = abs($mask + 1);
         $this->ip_dec_max = abs($mask + $addr_max);
-        $enabled = 1;
     }
 
     public static function toDecAddress($ip_cidr)

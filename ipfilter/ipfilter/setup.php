@@ -1,4 +1,5 @@
 <?php
+
 use \RazorSoftware\IpFilter\Setup\GeoIpDatabase;
 
 
@@ -8,7 +9,7 @@ if (!file_exists(__DIR__ . '/setup') || file_exists(__DIR__ . '/setup/installed'
     die;
 }
 
-require_once (__DIR__ . '/config.php');
+require_once __DIR__ . '/config.php';
 
 if (!defined("RZIPF_ALLOW_SETUP") || RZIPF_ALLOW_SETUP !== TRUE) {
     http_response_code(403);
@@ -16,8 +17,8 @@ if (!defined("RZIPF_ALLOW_SETUP") || RZIPF_ALLOW_SETUP !== TRUE) {
     die;
 }
 
-require_once (__DIR__ . '/setup/include/functions.php');
-require_once (__DIR__ . '/setup/config_setup.php');
+require_once __DIR__ . '/setup/include/functions.php';
+require_once __DIR__ . '/setup/config_setup.php';
 
 /* SESSION */
 if (!session_start()) die;
@@ -111,14 +112,19 @@ if (session_start()) {
     session_write_close();
 }
 
-requireFileWrite($sql_data_filename, $m->render(
-    $sql_data_template_footer,
-    array_merge(
-        $config_geo, 
-        array( 
-            'ROWS' => $geo_data->getExportCount()
-        ))),
-    FILE_APPEND);
+requireFileWrite(
+    $sql_data_filename,
+    $m->render(
+        $sql_data_template_footer,
+        array_merge(
+            $config_geo,
+            array(
+                'ROWS' => $geo_data->getExportCount()
+            )
+        )
+    ),
+    FILE_APPEND
+);
 if (session_start()) {
     $_SESSION[RZIP_SESSION_STATUS] = 5;
     session_write_close();
@@ -210,4 +216,3 @@ file_put_contents(__DIR__ . '/setup/installed', date(DATE_ATOM, time()));
 die();
 
 /* EOS */
-?>

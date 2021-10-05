@@ -1,4 +1,5 @@
 <?php
+
 namespace RazorSoftware\IpFilter\Setup;
 
 class GeoIpDatabase
@@ -56,7 +57,8 @@ class GeoIpDatabase
         }
 
         $regionCodes = preg_grep('/^[0-9A-Za-z\-]+$/', $this->regions);
-        for ($i=0; $i < count($regionCodes); $i++) {
+        $totalCount = count($regionCodes);
+        for ($i = 0; $i < $totalCount; $i++) {
             $regionCodes[$i] = "'" . $regionCodes[$i] . "'";
         }
 
@@ -112,7 +114,7 @@ class GeoIpDatabase
                 break;
             }
         }
-        
+
         return $this;
     }
 

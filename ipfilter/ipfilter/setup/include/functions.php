@@ -1,7 +1,9 @@
 <?php
+
 use Ifsnop\Mysqldump\Mysqldump;
 
 /* CONSTANTS */
+
 define('RZIP_SESSION_LASTACTIVITY', 'rzipf_setup_last_activity');
 define('RZIP_SESSION_SETUPAUTH', 'rzipf_setup_auth');
 define('RZIP_SESSION_LOGFILE', 'rzipf_setup_logfile');
@@ -14,7 +16,7 @@ function writeLog($line, $overwrite = false)
 {
     echo '<p>' . $line . '</p>';
 
-    
+
     if (isset($_SESSION[RZIP_SESSION_LOGFILE]) && !empty($_SESSION[RZIP_SESSION_LOGFILE])) {
         if (file_exists($_SESSION[RZIP_SESSION_LOGFILE]) && $overwrite !== true) {
             file_put_contents($_SESSION[RZIP_SESSION_LOGFILE], $line . "\n", FILE_APPEND);
@@ -29,7 +31,7 @@ function getLogfile()
     if (isset($_SESSION[RZIP_SESSION_LOGFILE]) && !empty($_SESSION[RZIP_SESSION_LOGFILE])) {
         return $_SESSION[RZIP_SESSION_LOGFILE];
     }
-    
+
     return (__DIR__ . '/../logs/setuplog-' . time() . '.log');
 }
 
@@ -53,14 +55,14 @@ function execSqlLines($conn, $filename, $update_callback)
     while (!feof($f)) {
         $index++;
         $line = trim(fgets($f));
-        
+
         if (!$update_callback($index, $line)) {
             continue;
         }
 
         $conn->query($line);
         $conn->store_result();
-        
+
         if ($conn->errno > 0) {
             $err = $conn->errno;
             return $err;

@@ -1,4 +1,5 @@
 <?php
+
 namespace RazorSoftware\IpFilter;
 
 class Analytic
