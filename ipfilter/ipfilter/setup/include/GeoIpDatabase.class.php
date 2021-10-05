@@ -1,7 +1,8 @@
 <?php
 namespace RazorSoftware\IpFilter\Setup;
 
-class GeoIpDatabase {
+class GeoIpDatabase
+{
     private $conn;
     private $table;
     private $statement;
@@ -9,41 +10,53 @@ class GeoIpDatabase {
 
     private $regions = array();
 
-    function __construct($host, $user, $pass, $schema, $table) {
-        if (empty($host) || empty($user) || empty($schema) || empty($table))
+    public function __construct($host, $user, $pass, $schema, $table)
+    {
+        if (empty($host) || empty($user) || empty($schema) || empty($table)) {
             throw new \Exception('Invalid arguments');
+        }
 
         $conn = new \mysqli($host, $user, $pass, $schema);
 
-        if (!is_object($conn))
+        if (!is_object($conn)) {
             throw new \Exception('Cannot connect to database server');
+        }
 
         $this->conn = $conn;
         $this->table = $table;
     }
 
-    function getExportCount() { return $this->exportCount; }
+    public function getExportCount()
+    {
+        return $this->exportCount;
+    }
 
-    function select(array $regions) {
-        if (empty($regions))
+    public function select(array $regions)
+    {
+        if (empty($regions)) {
             throw new \Exception("Invalid argument");
-        if ($this->statement !== NULL)
+        }
+        if ($this->statement !== null) {
             throw new \Exception("Invalid Operation. This instance is already prepared");
+        }
 
         foreach ($regions as $region) {
-            if (!in_array($region, $this->regions, true))
+            if (!in_array($region, $this->regions, true)) {
                 array_push($this->regions, $region);
+            }
         }
 
         return $this;
     }
 
-    function execute() {
-        if ($this->statement !== NULL)
+    public function execute()
+    {
+        if ($this->statement !== null) {
             throw new \Exception("Invalid Operation. This instance is already prepared");
+        }
 
         $regionCodes = preg_grep('/^[0-9A-Za-z\-]+$/', $this->regions);
-        for ($i=0; $i < count($regionCodes); $i++) { 
+        for ($i=0; $i < count($regionCodes); $i++) {
             $regionCodes[$i] = "'" . $regionCodes[$i] . "'";
         }
 
@@ -56,7 +69,7 @@ class GeoIpDatabase {
             `" . $this->table . "`
         WHERE
             `" . $this->table . "`.`country_code` IN (
-                " . implode (',', $regionCodes) . "
+                " . implode(',', $regionCodes) . "
             )
         ORDER BY
             `ip_dec_min` ASC;";
@@ -76,7 +89,8 @@ class GeoIpDatabase {
         return $this;
     }
 
-    function iterate($iterator) {
+    public function iterate($iterator)
+    {
         $this->statement->bind_result(
             $ip_cidr,
             $ip_dec_min,
@@ -94,29 +108,32 @@ class GeoIpDatabase {
                 'enabled' => $enabled
             );
 
-            if ($iterator($this->exportCount, $data) !== TRUE)
+            if ($iterator($this->exportCount, $data) !== true) {
                 break;
+            }
         }
         
         return $this;
     }
 
-    function reset() {
+    public function reset()
+    {
         $this->exportCount = 0;
-        if ($this->statement !== NULL)
+        if ($this->statement !== null) {
             $this->statement->close();
-        $this->statement = NULL;
+        }
+        $this->statement = null;
 
         return $this;
     }
 
-    function close() {
-        if ($this->statement !== NULL)
+    public function close()
+    {
+        if ($this->statement !== null) {
             $this->statement->close();
-        $this->statement = NULL;
+        }
+        $this->statement = null;
         $this->conn->close();
-        $this->conn = NULL;
+        $this->conn = null;
     }
 }
-
-?>

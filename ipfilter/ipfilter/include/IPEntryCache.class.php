@@ -1,7 +1,8 @@
 <?php
 namespace RazorSoftware\IpFilter;
 
-class IPEntryCache {
+class IPEntryCache
+{
     public $id;
     public $ip_dec;
     public $filtered;
@@ -9,7 +10,8 @@ class IPEntryCache {
     private $conn;
     private $table = RZIPF_DB_TABLE_IPENTRYCACHE;
 
-    static function fromResult($result_set) {
+    public static function fromResult($result_set)
+    {
         $obj = new IPEntryCache();
 
         $obj->id = $result_set['id'];
@@ -20,9 +22,11 @@ class IPEntryCache {
         return $obj;
     }
 
-    static function entryExists($ip_dec) {
-        if (empty($ip_dec))
+    public static function entryExists($ip_dec)
+    {
+        if (empty($ip_dec)) {
             throw new \Exception("Invalid Operation. Entry is not set.");
+        }
     
         $conn = DbConnection::open_connection();
 
@@ -36,13 +40,15 @@ class IPEntryCache {
         return ($count > 0);
     }
 
-    function insert() {
+    public function insert()
+    {
         if (isset($id)) {
             throw new \Exception("Invalid Operation. ID not expected.");
         }
 
-        if (entryExists($this->ip_dec))
+        if (entryExists($this->ip_dec)) {
             throw new \Exception("Invalid Operation. Invalid IP on CACHE.");
+        }
 
         $this->conn = DbConnection::open_connection();
 
@@ -50,8 +56,9 @@ class IPEntryCache {
         (`ip_dec`, `filtered`, `filter`)
             VALUES (?, ?, ?)");
 
-        if (empty($this->ip_dec) || strlen($this->ip_dec) < 7 || strlen($this->ip_dec) > 15)
+        if (empty($this->ip_dec) || strlen($this->ip_dec) < 7 || strlen($this->ip_dec) > 15) {
             throw new \Exception("Invalid Operation. Invalid data.");
+        }
 
         $stmt->bind_param("iii", $this->ip_dec, $this->filtered, $this->filter);
 
@@ -60,7 +67,8 @@ class IPEntryCache {
         $stmt->close();
     }
 
-    static function cacheSize() {
+    public static function cacheSize()
+    {
         $conn = DbConnection::open_connection();
 
         $stmt = $conn->get_connection()->prepare("SELECT COUNT(`ip_dec`) FROM `" . RZIPF_DB_TABLE_IPENTRYCACHE . "`");
@@ -72,4 +80,3 @@ class IPEntryCache {
         return $count;
     }
 }
-?>

@@ -1,7 +1,8 @@
 <?php
 namespace RazorSoftware\IpFilter;
 
-class IPEntry {
+class IPEntry
+{
     public $id;
     public $ip_cidr;
     public $enabled;
@@ -11,7 +12,8 @@ class IPEntry {
     private $conn;
     private $table = RZIPF_DB_TABLE_IPENTRY;
 
-    static function fromResult($result_set) {
+    public static function fromResult($result_set)
+    {
         $obj = new IPEntry();
 
         $obj->id = $result_set['id'];
@@ -24,9 +26,11 @@ class IPEntry {
         return $obj;
     }
 
-    static function entryExists($ip_min) {
-        if (empty($ip_min))
+    public static function entryExists($ip_min)
+    {
+        if (empty($ip_min)) {
             throw new \Exception("Invalid Operation. Entry is not set.");
+        }
     
         $conn = DbConnection::open_connection();
 
@@ -40,7 +44,8 @@ class IPEntry {
         return ($count > 0);
     }
 
-    static function getMatchingEntry($ip_address) {
+    public static function getMatchingEntry($ip_address)
+    {
         $addr_dec = IPEntry::toDecAddress($ip_address);
 
         $conn = DbConnection::open_connection();
@@ -63,7 +68,7 @@ class IPEntry {
         $result_set = DbConnection::parse_mysqli_results($stmt);
         $stmt->free_result();
         $stmt->close();
-        $stmt = NULL;
+        $stmt = null;
 
         if (!empty($result_set) && is_array($result_set) && count($result_set) > 0) {
             /* cache hit */
@@ -76,12 +81,12 @@ class IPEntry {
             //         $cached->filter,
             //         ($cached->filter == NULL || $cached->filtered == 0) ? "GRANTED" : "FILTERED" ));
 
-            if ($cached->filter == NULL) {
-                return NULL;
+            if ($cached->filter == null) {
+                return null;
             }
 
             if ($cached->filtered == 0) {
-                return NULL;
+                return null;
             }
 
             $stmt = $conn->get_connection()->prepare("
@@ -102,15 +107,17 @@ class IPEntry {
             $result_set = DbConnection::parse_mysqli_results($stmt);
             $stmt->free_result();
             $stmt->close();
-            $stmt = NULL;
+            $stmt = null;
 
             if (empty($result_set) || count($result_set) < 1) {
-                if (shouldLog())
-                log(sprintf(
-                    "WARNING: invalid cache entry for address [%s]. parent rule [%s] not found",
-                    $ip_address,
-                    $cached->filter));
-                return NULL;
+                if (shouldLog()) {
+                    log(sprintf(
+                        "WARNING: invalid cache entry for address [%s]. parent rule [%s] not found",
+                        $ip_address,
+                        $cached->filter
+                    ));
+                }
+                return null;
             }
 
             return IPEntry::fromResult($result_set[0]);
@@ -138,7 +145,7 @@ class IPEntry {
         $result_set = DbConnection::parse_mysqli_results($stmt);
         $stmt->free_result();
         $stmt->close();
-        $stmt = NULL;
+        $stmt = null;
 
         if (empty($result_set) || count($result_set) == 0) {
             $filtered = 0;
@@ -149,12 +156,14 @@ class IPEntry {
             $stmt->execute();
             $stmt->close();
 
-            if (shouldLog())
+            if (shouldLog()) {
                 log(sprintf(
                     "cache miss for address [%s]. no matching rule. cached. [GRANTED]",
-                    $ip_address));
+                    $ip_address
+                ));
+            }
 
-            return NULL;
+            return null;
         }
 
         $filtered = 1;
@@ -166,26 +175,30 @@ class IPEntry {
         $stmt->bind_param("iii", $addr_dec, $filtered, $filterid);
         $stmt->execute();
         $stmt->close();
-        $stmt = NULL;
+        $stmt = null;
 
-        if (shouldLog())
-                log(sprintf(
-                    "cache miss for address [%s]. matching rule_id [%s]. cached. [FILTERED]",
-                    $ip_address,
-                    $filter_entry->id));
+        if (shouldLog()) {
+            log(sprintf(
+                "cache miss for address [%s]. matching rule_id [%s]. cached. [FILTERED]",
+                $ip_address,
+                $filter_entry->id
+            ));
+        }
 
         return $filter_entry;
     }
 
-    function insert() {
+    public function insert()
+    {
         if (isset($id)) {
             throw new \Exception("Invalid Operation. ID not expected.");
         }
 
         $this->calculate();
 
-        if (IPFilter::entryExists($this->ip_dec_min))
+        if (IPFilter::entryExists($this->ip_dec_min)) {
             throw new \Exception("Invalid Operation. Invalid IP CIDR.");
+        }
 
         $this->conn = DbConnection::open_connection();
 
@@ -193,8 +206,9 @@ class IPEntry {
         (`ip_cidr`, `enabled`, `ip_dec_min`, `ip_dec_max`)
             VALUES (?, ?, ?, ?)");
 
-        if (empty($this->ip_cidr) || strlen($this->ip_cidr) < 7 || strlen($this->ip_cidr) > 18)
+        if (empty($this->ip_cidr) || strlen($this->ip_cidr) < 7 || strlen($this->ip_cidr) > 18) {
             throw new \Exception("Invalid Operation. Invalid data.");
+        }
 
         $stmt->bind_param("siii", $this->ip_cidr, $this->enabled, $this->ip_dec_min, $this->ip_dec_max);
 
@@ -203,7 +217,8 @@ class IPEntry {
         $stmt->close();
     }
 
-    function calculate() {
+    public function calculate()
+    {
         $masklen = (int)substr($this->ip_cidr, strpos($this->ip_cidr, '/') + 1);
         $addrlen = 32 - $masklen;
 
@@ -220,24 +235,27 @@ class IPEntry {
         $enabled = 1;
     }
 
-    static function toDecAddress($ip_cidr) {
+    public static function toDecAddress($ip_cidr)
+    {
         $offset = 0;
         $netaddress = 0;
         for ($i = 0; $i < 4; $i++) {
             $offset_last = strpos($ip_cidr, '.', $offset);
-            if ($offset_last === FALSE)
+            if ($offset_last === false) {
                 $offset_last = strpos($ip_cidr, '/', $offset);
-            if ($offset_last === FALSE)
+            }
+            if ($offset_last === false) {
                 $offset_last = strlen($ip_cidr);
+            }
 
             $netaddress += (int)substr($ip_cidr, $offset, $offset_last - $offset);
 
-            if ($i < 3)
+            if ($i < 3) {
                 $netaddress = $netaddress << 8;
+            }
             $offset = $offset_last + 1;
         }
 
         return abs($netaddress);
     }
 }
-?>

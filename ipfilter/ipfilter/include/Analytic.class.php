@@ -1,7 +1,8 @@
 <?php
 namespace RazorSoftware\IpFilter;
 
-class Analytic {
+class Analytic
+{
     public $filter;
     public $remoteaddr;
     public $sessionid;
@@ -9,7 +10,8 @@ class Analytic {
     public $referrer;
     private $conn;
 
-    function __construct($filter) {
+    public function __construct($filter)
+    {
         $this->filter = $filter;
         $this->remoteaddr = $_SERVER['REMOTE_ADDR'];
         $this->sessionid = $_COOKIE['PHPSESSID'];
@@ -17,12 +19,13 @@ class Analytic {
         $this->referrer = $_SERVER['HTTP_REFERER'];
     }
 
-    function save() {
+    public function save()
+    {
         $this->conn = DbConnection::open_connection();
 
-        $filterid = NULL;
+        $filterid = null;
 
-        if ($this->filter != NULL) {
+        if ($this->filter != null) {
             $filterid = $this->filter->id;
         }
 
@@ -38,4 +41,3 @@ class Analytic {
         $stmt->close();
     }
 }
-?>

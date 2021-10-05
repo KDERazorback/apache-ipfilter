@@ -5,22 +5,24 @@
 
     $filter = \RazorSoftware\IpFilter\IPEntry::getMatchingEntry($_SERVER['REMOTE_ADDR']);
 
-    if ($filter != NULL) {
-        if (!headers_sent())
-            header("X-RZ-Floodgate: " . $filter->id, TRUE);
-        if (RZIPF_ENABLE_ANALYTIC == TRUE) {
+    if ($filter != null) {
+        if (!headers_sent()) {
+            header("X-RZ-Floodgate: " . $filter->id, true);
+        }
+        if (RZIPF_ENABLE_ANALYTIC == true) {
             $analytic = new \RazorSoftware\IpFilter\Analytic($filter);
             $analytic->save();
         }
         \RazorSoftware\IpFilter\checkRuntime($stime);
         die;
     } else {
-        if (!headers_sent())
-            header("X-RZ-Floodgate: 0", TRUE);
+        if (!headers_sent()) {
+            header("X-RZ-Floodgate: 0", true);
+        }
         
         \RazorSoftware\IpFilter\checkRuntime($stime);
 
-        if(defined('RZIPF_PHP_NEXTFILE') && !empty(RZIPF_PHP_NEXTFILE))
+        if (defined('RZIPF_PHP_NEXTFILE') && !empty(RZIPF_PHP_NEXTFILE)) {
             require RZIPF_PHP_NEXTFILE;
+        }
     }
-?>
